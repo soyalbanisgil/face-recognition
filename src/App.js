@@ -4,6 +4,7 @@ import { Switch, Route, Redirect } from "react-router-dom";
 import Navigation from "./components/Navigation/Navigation";
 import SignIn from './components/SignIn/SignIn';
 import Register from './components/Register/Register'
+import { auth } from './firebase/firebase.utils'
 import Dashboard from './components/Dashboard/Dashboard';
 import './App.css';
 
@@ -21,11 +22,27 @@ const particleOptions = {
 
 class App extends Component {
 
-  constructor(){
-    super();
+  constructor(props){
+    super(props);
     this.state ={
-      signedin: true
+      signedin: true,
+      currentUser: null
     }
+  }
+
+  componentDidMount(){
+
+    // const { setCurrentUser } = this.props;
+
+    this.unsusbscribeFromAuth = auth.onAuthStateChanged(user => {
+      this.setState({currentUser: user});
+
+      console.log(user);
+    })
+  }
+
+  componentWillUnmount(){
+    this.unsusbscribeFromAuth();
   }
 
   render(){
@@ -34,13 +51,20 @@ class App extends Component {
         <Particles className="particles"      
         params={particleOptions}
         />
-        <Navigation />
+        <Navigation currentUser={this.state.currentUser} />
       <Switch>
-        <Route exact path="/" render={() => {
-          if(this.state.signedin === true){
-            return <Dashboard />
+      <Route exact path="/" render={() => {
+        if(this.state.currentUser === null){
+          return <SignIn />
+        } else {
+          return <Dashboard />
+        }
+      }} />
+        <Route exact path="/signin" render={() => {
+          if(this.props.currentUser){
+            return <Redirect to="/" />
           } else {
-            return <Redirect to="/signin" />
+            return <SignIn />
           }
         }} />
         <Route path="/signin" component={SignIn} />
