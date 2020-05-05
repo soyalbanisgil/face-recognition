@@ -1,7 +1,8 @@
 import React, { Component } from "react";
+import { Link } from 'react-router-dom';
 import './SignIn.styles.css';
 
-import { signInWithGoogle } from '../../firebase/firebase.utils';
+import { auth, signInWithGoogle } from '../../firebase/firebase.utils';
 
 class SignIn extends Component {
   constructor(){
@@ -12,8 +13,18 @@ class SignIn extends Component {
     }
   }
 
-  handleSubmit = (e) => {
+  handleSubmit = async (e) => {
     e.preventDefault();
+
+    const { email, password } = this.state;
+
+    try{
+      await auth.signInWithEmailAndPassword(email, password);
+      this.setState({email: '', password: ''});
+    } catch (error) {
+      console.log(error);
+    }
+
     this.setState({email: '', password: ''})
   }
 
@@ -48,13 +59,13 @@ class SignIn extends Component {
               placeholder="Your Password"
             />
           </div>
-          <button type="submit" className="btn btn-danger btn-lg btn-block">
+          <button onSubmit={this.handleSubmit} type="submit" className="btn btn-danger btn-lg btn-block">
             Submit
           </button>
           <button onClick={signInWithGoogle} className="btn btn-danger btn-lg btn-block">
             Sign In With Google
           </button>
-          <p className="text-white mt-4">Don't have an account? <a className="text-warning" href="/">Register</a></p>
+          <p className="text-white mt-4">Don't have an account? <Link className="text-warning" to="/register">Register</Link></p>
         </form>
       </div>
     );

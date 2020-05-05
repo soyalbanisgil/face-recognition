@@ -4,7 +4,7 @@ import { Switch, Route, Redirect } from "react-router-dom";
 import Navigation from "./components/Navigation/Navigation";
 import SignIn from './components/SignIn/SignIn';
 import Register from './components/Register/Register'
-import { auth } from './firebase/firebase.utils'
+import { auth, createUserProfileDoc } from './firebase/firebase.utils'
 import Dashboard from './components/Dashboard/Dashboard';
 import './App.css';
 
@@ -34,10 +34,28 @@ class App extends Component {
 
     // const { setCurrentUser } = this.props;
 
-    this.unsusbscribeFromAuth = auth.onAuthStateChanged(user => {
-      this.setState({currentUser: user});
+    this.unsusbscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
+      
+      if(userAuth){
+        const userRef = await createUserProfileDoc(userAuth);
 
-      console.log(user);
+        userRef.onSnapshot(snapshot => {
+          this.setState({
+            currentUser: {
+              id: snapshot.id,
+              ...snapshot.data()
+            }
+          })
+        });
+      } else {
+        this.setState({currentUser: userAuth});
+      }
+      
+      // createUserProfileDoc(user);
+
+      // this.setState({currentUser: user});
+
+      // console.log(createUserProfileDoc(user));
     })
   }
 
@@ -65,6 +83,13 @@ class App extends Component {
             return <Redirect to="/" />
           } else {
             return <SignIn />
+          }
+        }} />
+        <Route exact path="/register" render={() => {
+          if(this.props.currentUser){
+            return <Redirect to="/" />
+          } else {
+            return <Register />
           }
         }} />
         <Route path="/signin" component={SignIn} />

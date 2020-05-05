@@ -2,7 +2,6 @@ import React from 'react';
 import './FaceRecognition.styles.css';
 
 const FaceRecognition = ({ imgURL, box}) => {
-    console.log(box)
     return (
         <div className="center mt-4">
             <div className="wrap">
