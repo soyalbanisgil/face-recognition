@@ -29,7 +29,7 @@ class Register extends Component {
       await createUserProfileDoc(user, {displayName});
 
       this.setState({
-        displayName: '',
+        displayName: displayName,
         email: '',
         password: '',
         confirmPassword: ''

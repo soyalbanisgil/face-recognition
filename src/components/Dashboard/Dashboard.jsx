@@ -3,6 +3,8 @@ import Rank from '../Rank/Rank';
 import ImageLinkForm from '../ImageLinkForm/ImageLinkForm';
 import FaceRecognition from '../FaceRecognition/FaceRecognition'
 import Clarifai from 'clarifai';
+import { auth, createUserProfileDoc } from '../../firebase/firebase.utils';
+// import firebase, { firestore } from '../../firebase/firebase.utils';
 
 const app = new Clarifai.App({
     apiKey: '5f0692c9c5ec494caec3f2ec3f7363ca'
@@ -14,9 +16,31 @@ class Dashboard extends Component{
         this.state ={
           input: '',
           imgURL: '',
-          box: {}
+          box: {},
+          displayName: ''
         }
       }
+
+
+      componentDidMount() {
+
+        const { displayName } = this.state
+    
+        this.unsubscribeFromAuth = auth.onAuthStateChanged(async (userAuth) => {
+          if (userAuth) {
+            await createUserProfileDoc(userAuth, { displayName });
+            console.log(userAuth);
+            this.setState({currentUser: userAuth.displayName})
+          } else {
+            console.log('usuario no existe')
+          }
+        });
+      }
+    
+      componentWillUnmount() {
+        this.unsubscribeFromAuth();
+      }
+
 
       calculateFaceLocation = (data) => {
         const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
@@ -50,7 +74,7 @@ class Dashboard extends Component{
     render(){
         return (
             <div>
-                <Rank />
+                <Rank displayName={this.state.currentUser} />
                 <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit} />
                 <FaceRecognition box={this.state.box} imgURL={this.state.imgURL} />
             </div>

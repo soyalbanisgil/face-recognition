@@ -1,9 +1,9 @@
 import React from 'react';
 
-const Rank = () => {
+const Rank = ({ displayName }) => {
     return (
         <div className="text-center text-white mt-5">
-            <h2>Albanis, your current rank is: <span>#5</span> </h2>
+            <h2>Hello {displayName}</h2>
         </div>
     )
 };
