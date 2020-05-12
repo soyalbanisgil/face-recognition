@@ -29,7 +29,6 @@ class Dashboard extends Component{
         this.unsubscribeFromAuth = auth.onAuthStateChanged(async (userAuth) => {
           if (userAuth) {
             await createUserProfileDoc(userAuth, { displayName });
-            console.log(userAuth);
             this.setState({currentUser: userAuth.displayName})
           } else {
             console.log('usuario no existe')
